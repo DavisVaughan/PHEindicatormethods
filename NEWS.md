@@ -1,3 +1,7 @@
+## PHEindicatormethods Work in progress
+
+`phe_dsr`, `phe_isr`, `phe_mean`, `phe_proportion`, `phe_rate`, `phe_smr`, `phe_life_expectancy` amended so option of having no confidence intervals is allowed.
+
 ## PHEindicatormethods v1.3.2
 
 `phe_dsr`, `phe_isr`, `phe_mean`, `phe_proportion`, `phe_rate`, `phe_smr`, `phe_life_expectancy` amended so output data frame has the same grouping attributes as the input data frame.
