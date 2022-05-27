@@ -77,8 +77,10 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
         if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
             stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
         }
-    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!is.na(confidence)) {
+      if (confidence < 0.9|(confidence > 1 & confidence < 90)|confidence > 100) {
+        stop("confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.")
+      }
     }
 
 
@@ -129,19 +131,22 @@ phe_proportion <- function(data, x, n, type="full", confidence=0.95, multiplier=
 
 
         # scale confidence level
+      if (!is.na(confidence)){
         if (confidence[1] >= 90) {
-            confidence <- confidence/100
+          confidence <- confidence/100
         }
+      }
+
 
 
         # calculate proportion and single CI
         phe_proportion <- data %>%
             mutate(value = ({{ x }})/({{ n }}) * multiplier,
-                   lowercl = wilson_lower(({{ x }}),({{ n }}),confidence) * multiplier,
-                   uppercl = wilson_upper(({{ x }}),({{ n }}),confidence) * multiplier,
-                   confidence = paste(confidence*100,"%",sep=""),
+                   lowercl = if(!is.na(confidence)){wilson_lower(({{ x }}),({{ n }}),confidence) * multiplier} else {NA_real_},
+                   uppercl = if(!is.na(confidence)){wilson_upper(({{ x }}),({{ n }}),confidence) * multiplier} else {NA_real_},
+                   confidence = if_else(!is.na(confidence), paste(confidence*100,"%",sep=""), "not requested"),
                    statistic = if_else(multiplier == 100,"percentage",paste0("proportion of ",multiplier)),
-                   method = "Wilson")
+                   method = if_else(confidence == "not requested", NA_character_, "Wilson"))
 
 
         # generate output in required format
