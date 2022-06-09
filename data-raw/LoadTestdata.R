@@ -79,6 +79,12 @@ test_Rate_g <- test_Rate %>%
 
 test_Rate_g_results   <- read_excel(".\\tests\\testthat\\testdata_Rate.xlsx", sheet="testdata_Rate_g",   col_names=TRUE)
 
+test_Rate_g_results_no_CI <- test_Rate_g_results %>%
+  mutate(lowercl = NA_real_,
+         uppercl = NA_real_,
+         confidence = "not requested",
+         method = NA_character_)
+
 
 #Means test data
 test_Mean         <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet="testdata_Mean",         col_names=TRUE)
@@ -148,7 +154,7 @@ usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,
 # SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
 usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results, test_Prop_g_results_no_CIs,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
-                  test_Rate, test_Rate_g, test_Rate_g_results,
+                  test_Rate, test_Rate_g, test_Rate_g_results, test_Rate_g_results_no_CI,
                   test_Mean, test_Mean_Grp, test_Mean_results, test_Mean_results_no_CI,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results, test_DSR_results_no_CI,
                   test_ISR_refdata, test_ISR_results, test_ISR_results_no_CI, test_ISR_ownref,

@@ -69,8 +69,10 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
         if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
             stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
         }
-    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!is.na(confidence)) {
+      if (confidence < 0.9|(confidence > 1 & confidence < 90)|confidence > 100) {
+        stop("confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.")
+      }
     }
 
 
@@ -124,21 +126,23 @@ phe_rate <- function(data,x, n, type = "full", confidence = 0.95, multiplier = 1
     } else {
 
         # scale confidence level
+      if (!is.na(confidence)){
         if (confidence[1] >= 90) {
-            confidence <- confidence/100
+          confidence <- confidence/100
         }
+      }
 
 
         # calculate rate and a single CI
         phe_rate <- data %>%
             mutate(value = ({{ x }})/({{ n }})*multiplier,
-                   lowercl    = if_else(({{ x }}) < 10, qchisq((1-confidence)/2,2*({{ x }}))/2/({{ n }})*multiplier,
-                                        byars_lower(({{ x }}),confidence)/({{ n }})*multiplier),
-                   uppercl    = if_else(({{ x }}) < 10, qchisq(confidence+(1-confidence)/2,2*({{ x }})+2)/2/({{ n }})*multiplier,
-                                        byars_upper(({{ x }}),confidence)/({{ n }})*multiplier),
-                   confidence = paste(confidence*100,"%",sep=""),
+                   lowercl    = if(!is.na(confidence)){if_else(({{ x }}) < 10, qchisq((1-confidence)/2,2*({{ x }}))/2/({{ n }})*multiplier,
+                                        byars_lower(({{ x }}),confidence)/({{ n }})*multiplier)} else {NA_real_},
+                   uppercl    = if(!is.na(confidence)){if_else(({{ x }}) < 10, qchisq(confidence+(1-confidence)/2,2*({{ x }})+2)/2/({{ n }})*multiplier,
+                                        byars_upper(({{ x }}),confidence)/({{ n }})*multiplier)} else {NA_real_},
+                   confidence = if_else(!is.na(confidence), paste(confidence*100,"%",sep=""), "not requested"),
                    statistic  = paste("rate per",as.character(format(multiplier, scientific=F))),
-                   method     = if_else(({{ x }}) < 10, "Exact","Byars"))
+                   method     = if_else(confidence == "not requested", NA_character_, if_else(({{ x }}) < 10, "Exact","Byars")))
 
 
         # generate output in required format

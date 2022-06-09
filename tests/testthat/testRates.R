@@ -81,6 +81,10 @@ test_that("rates and CIs calculate correctly",{
   expect_equal(data.frame(select(phe_rate(slice(test_Rate,9:16)[1:3],Numerator,Denominator, confidence = c(0.95, 0.998)),9)),
                data.frame(confidence = rep("95%, 99.8%",8), stringsAsFactors = FALSE),
                check.attributes=FALSE, check.names=FALSE, info="test two CIs metadata")
+
+  expect_equal(data.frame(select(phe_rate(slice(test_Rate_g_results,9:16)[1:3],Numerator,Denominator, confidence = NA),1:6,8:9)),
+               data.frame(select(slice(test_Rate_g_results_no_CI,9:16),1:6,8:9)),
+               check.attributes=FALSE, check.names=FALSE, info="test no CI")
 })
 
 
@@ -111,17 +115,17 @@ test_that("rates - errors are generated when invalid arguments are used",{
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
                                    pop =c(100,100,100)), obs, pop, confidence = 0.5),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence < 0.9")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.", info="error confidence < 0.9")
 
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
                                    pop =c(100,100,100)), obs, pop, confidence = 40),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence between 1 and 90")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.", info="error confidence between 1 and 90")
 
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
                                    pop =c(100,100,100)), obs, pop, confidence = 9998),
-               "confidence level must be between 90 and 100 or between 0.9 and 1", info="error confidence >100")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.", info="error confidence >100")
 
   expect_error(phe_rate(data.frame(area=c("Area1","Area2","Area3"),
                                    obs =c(65,80,30),
