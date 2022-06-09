@@ -76,6 +76,10 @@ test_that("dsrs and CIs calculate correctly",{
                data.frame(confidence = c("99.8%", "99.8%", "99.8%"), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test 99.8% CI metadata")
 
+  expect_equal(data.frame(select(phe_dsr(test_multiarea, count, pop, confidence = NA),1:6)),
+               data.frame(test_DSR_results_no_CI[5:7,1:6]),
+               check.attributes=FALSE, check.names=FALSE,info="test no CIs")
+
 })
 
 
@@ -98,13 +102,13 @@ test_that("dsrs - errors are generated when invalid arguments are used",{
                "denominators must all be greater than zero",info="error denominator < 0")
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 0.74),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence < 0.9")
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 3),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence between 1 and 90")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence between 1 and 90")
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, confidence = 1000),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence >100")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence >100")
 
   expect_error(phe_dsr(test_multiarea, count, pop, stdpop = esp2013, type="combined"),
                "type must be one of value, lower, upper, standard or full",info="error invalid type")

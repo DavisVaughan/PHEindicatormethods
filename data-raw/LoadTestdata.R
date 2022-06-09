@@ -107,6 +107,14 @@ test_ISR_refdata <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", 
 test_ISR_ownref  <- read_excel(".\\tests\\testthat\\testdata_DSR_ISR_SMR.xlsx", sheet="testdata_multiarea_isrsmr", col_names=TRUE) %>%
                       group_by(area)
 
+test_DSR_results_no_CI <- test_DSR_results %>%
+  select(1:4,9:10) %>%
+  mutate(lowercl = NA_real_,
+         uppercl = NA_real_,
+         confidence = "not requested",
+         method = NA_character_) %>%
+  select(1:4, 7:8, 5:6)
+
 # SII
 SII_test_data <- read_excel("tests/testthat/testdata_SII.xlsx")
 
@@ -129,7 +137,7 @@ usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results, 
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate, test_Rate_g, test_Rate_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
-                  test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results,
+                  test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results, test_DSR_results_no_CI,
                   test_ISR_refdata, test_ISR_results, test_ISR_ownref,
                   SII_test_data, SII_test_grouped,
                   internal = TRUE, overwrite = TRUE)

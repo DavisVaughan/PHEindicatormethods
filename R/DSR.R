@@ -113,8 +113,10 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
         if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
             stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
         }
-    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!is.na(confidence)) {
+      if (confidence < 0.9|(confidence > 1 & confidence < 90)|confidence > 100) {
+        stop("confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.")
+      }
     }
 
 
@@ -177,10 +179,11 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
     } else {
 
         # scale confidence level if single value specified
-        if (confidence >= 90) {
-            confidence <- confidence/100
+      if (!is.na(confidence)){
+        if (confidence[1] >= 90) {
+          confidence <- confidence/100
         }
-
+      }
 
         # calculate DSR with a single CI
         phe_dsr <- data %>%
@@ -190,15 +193,15 @@ phe_dsr <- function(data, x, n, stdpop = esp2013, stdpoptype = "vector",
                       total_pop = sum({{ n }}),
                       value = sum(wt_rate) / sum(stdpop_calc) * multiplier,
                       vardsr = 1/sum(stdpop_calc)^2 * sum(sq_rate),
-                      lowercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
-                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
-                      uppercl = value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
-                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier,
+                      lowercl = if(!is.na(confidence)){value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_lower(sum({{ x }},na.rm=TRUE),
+                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier} else {NA_real_},
+                      uppercl = if(!is.na(confidence)){value + sqrt((vardsr/sum({{ x }},na.rm=TRUE)))*(byars_upper(sum({{ x }},na.rm=TRUE),
+                                        confidence)-sum({{ x }},na.rm=TRUE)) * multiplier} else {NA_real_},
                       .groups = "keep") %>%
             select(-vardsr) %>%
-            mutate(confidence = paste(confidence*100,"%",sep=""),
+            mutate(confidence = if_else(!is.na(confidence), paste(confidence*100,"%",sep=""), "not requested"),
                    statistic = paste("dsr per",format(multiplier,scientific=F)),
-                   method = "Dobson")
+                   method = if_else(confidence == "not requested", NA_character_, "Dobson"))
 
         # remove DSR calculation for total counts < 10
         phe_dsr$value[phe_dsr$total_count            < 10] <- NA
