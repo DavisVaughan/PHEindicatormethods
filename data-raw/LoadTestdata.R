@@ -86,8 +86,13 @@ test_Mean_results <- read_excel(".\\tests\\testthat\\testdata_Mean.xlsx", sheet=
 
 test_Mean_Grp <- group_by(test_Mean,area)
 
-
-
+test_Mean_results_no_CI <- test_Mean_results %>%
+  select(1:5,10:11) %>%
+  mutate(lowercl = NA_real_,
+         uppercl = NA_real_,
+         confidence = "not requested",
+         method = NA_character_) %>%
+  select(1:5, 8:9, 6:7)
 
 
 # DSRs, ISRs and SMRs test data
@@ -144,7 +149,7 @@ usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,
 usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results, test_Prop_g_results_no_CIs,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate, test_Rate_g, test_Rate_g_results,
-                  test_Mean, test_Mean_Grp, test_Mean_results,
+                  test_Mean, test_Mean_Grp, test_Mean_results, test_Mean_results_no_CI,
                   test_multiarea, test_multigroup, test_DSR_1976, test_err1, test_err2, test_err3, test_DSR_results, test_DSR_results_no_CI,
                   test_ISR_refdata, test_ISR_results, test_ISR_results_no_CI, test_ISR_ownref,
                   SII_test_data, SII_test_grouped,

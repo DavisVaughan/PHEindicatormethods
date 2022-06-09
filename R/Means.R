@@ -55,8 +55,10 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
         if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
             stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
         }
-    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!is.na(confidence)) {
+      if (confidence < 0.9|(confidence > 1 & confidence < 90)|confidence > 100) {
+        stop("confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.")
+      }
     }
 
 
@@ -100,9 +102,11 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
     } else {
 
         # scale confidence level
+      if (!is.na(confidence)){
         if (confidence[1] >= 90) {
-            confidence <- confidence/100
+          confidence <- confidence/100
         }
+      }
 
 
         # calculate mean with a single CI
@@ -114,11 +118,11 @@ phe_mean <- function(data, x, type = "full", confidence=0.95) {
                       stdev   = sd({{ x }}),
                       .groups = "keep") %>%
             mutate(value = value_sum / value_count,
-                   lowercl = value - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
-                   uppercl = value + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count),
-                   confidence = paste(confidence*100,"%", sep=""),
+                   lowercl = if(!is.na(confidence)){value - abs(qt(p, value_count - 1)) * stdev / sqrt(value_count)} else {NA_real_},
+                   uppercl = if(!is.na(confidence)){value + abs(qt(p, value_count - 1)) * stdev / sqrt(value_count)} else {NA_real_},
+                   confidence = if_else(!is.na(confidence), paste(confidence*100,"%", sep=""), "not requested"),
                    statistic = "mean",
-                   method  = "Student's t-distribution")
+                   method  = if_else(confidence == "not requested", NA_character_, "Student's t-distribution"))
 
         # drop fields not required based on type argument
         if (type == "lower") {

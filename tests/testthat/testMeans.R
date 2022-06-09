@@ -58,6 +58,10 @@ test_that("means and CIs calculate correctly",{
                data.frame(confidence = "95%, 99.8%", stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
 
+  expect_equal(data.frame(select(phe_mean(test_Mean,values, confidence = NA),1:6,8:9)),
+               data.frame(select(slice(test_Mean_results_no_CI,3),2:9)),
+               check.attributes=FALSE, check.names=FALSE,info="test no CI")
+
 })
 
 
@@ -66,11 +70,11 @@ test_that("means - errors are generated when invalid arguments are used",{
   expect_error(phe_mean(test_Mean),
                "function phe_mean requires at least 2 arguments: data, x",info="error invalid number of arguments")
   expect_error(phe_mean(test_Mean, values, confidence = 0.2),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence < 0.9")
   expect_error(phe_mean(test_Mean, values, confidence = 202),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence between 1 and 90")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence between 1 and 90")
   expect_error(phe_mean(test_Mean, values, confidence = 200),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence > 100")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence > 100")
   expect_error(phe_mean(test_Mean, values, type="combined"),
                "type must be one of value, lower, upper, standard or full",info="error invalid type")
   expect_error(phe_mean(test_Mean, values, confidence = c(0.95, 0.98, 0.98)),
