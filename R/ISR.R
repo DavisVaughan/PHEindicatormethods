@@ -116,8 +116,10 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
         if (!(confidence[1] == 0.95 & confidence[2] == 0.998)) {
             stop("two confidence levels can only be produced if they are specified as 0.95 and 0.998")
         }
-    } else if ((confidence < 0.9)|(confidence > 1 & confidence < 90)|(confidence > 100)) {
-        stop("confidence level must be between 90 and 100 or between 0.9 and 1")
+    } else if (!is.na(confidence)) {
+      if (confidence < 0.9|(confidence > 1 & confidence < 90)|confidence > 100) {
+        stop("confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.")
+      }
     }
 
 
@@ -166,9 +168,11 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
     } else {
 
         # scale confidence level
-        if (confidence >= 90) {
-            confidence <- confidence/100
+      if (!is.na(confidence)){
+        if (confidence[1] >= 90) {
+          confidence <- confidence/100
         }
+      }
 
 
         # calculate isr with a single CI
@@ -179,13 +183,13 @@ phe_isr <- function(data, x, n, x_ref, n_ref, refpoptype = "vector",
                       ref_rate = sum(xrefpop_calc, na.rm=TRUE) / sum(nrefpop_calc) * multiplier,
                       .groups = "keep") %>%
             mutate(value     = observed / expected * ref_rate,
-                   lowercl = if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
-                                     byars_lower(observed,confidence)/expected * ref_rate),
-                   uppercl = if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
-                                     byars_upper(observed,confidence)/expected * ref_rate),
-                   confidence = paste(confidence*100,"%", sep=""),
+                   lowercl = if(!is.na(confidence)){if_else(observed<10, qchisq((1-confidence)/2,2*observed)/2/expected * ref_rate,
+                                     byars_lower(observed,confidence)/expected * ref_rate)} else {NA_real_},
+                   uppercl = if(!is.na(confidence)){if_else(observed<10, qchisq(confidence+(1-confidence)/2,2*observed+2)/2/expected * ref_rate,
+                                     byars_upper(observed,confidence)/expected * ref_rate)} else {NA_real_},
+                   confidence = if_else(!is.na(confidence), paste(confidence*100,"%", sep=""), "not requested"),
                    statistic = paste("isr per",format(multiplier,scientific=F)),
-                   method  = if_else(observed<10,"Exact","Byars"))
+                   method  = if_else(confidence == "not requested", NA_character_, if_else(observed<10,"Exact","Byars")))
 
         # drop fields not required based on value of type argument
         if (type == "lower") {
