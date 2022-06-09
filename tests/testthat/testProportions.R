@@ -84,7 +84,7 @@ test_that("proportions and CIs calculate correctly",{
                check.attributes=FALSE, check.names=FALSE, info="test two CIs, metadata")
 
   expect_equal(data.frame(select(phe_proportion(slice(test_Prop_g_results,1:8)[1:3], Numerator, Denominator, confidence = NA),1:6,8:9)),
-               data.frame(select(slice(test_Prop_g_no_CIs,1:8),1:6,8:9)),
+               data.frame(select(slice(test_Prop_g_results_no_CIs,1:8),1:6,8:9)),
                check.attributes=FALSE, check.names=FALSE, info="test no CIs")
 
 })

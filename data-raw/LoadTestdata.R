@@ -64,7 +64,7 @@ test_Prop_g <- test_Prop %>%
 
 test_Prop_g_results   <- read_excel(".\\tests\\testthat\\testdata_Proportion.xlsx", sheet="testdata_Prop_g",   col_names=TRUE)
 
-test_Prop_g_no_CIs <- test_Prop_g_results %>%
+test_Prop_g_results_no_CIs <- test_Prop_g_results %>%
   mutate(lowercl = NA_real_,
          uppercl = NA_real_,
          confidence = "not requested",
@@ -125,7 +125,7 @@ usethis::use_data(esp2013, LE_data, DSR_data, prevalence_data,
 
 
 # SAVE INTERNAL DATA IN R\Sysdata.rda - data available to functions and test scripts but not available to user:
-usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results, test_Prop_g_no_CIs,
+usethis::use_data(qnames, test_BW, test_Prop, test_Prop_g, test_Prop_g_results, test_Prop_g_results_no_CIs,
                   test_quantiles_g, test_quantiles_ug, test_quantiles_fail,
                   test_Rate, test_Rate_g, test_Rate_g_results,
                   test_Mean, test_Mean_Grp, test_Mean_results,
