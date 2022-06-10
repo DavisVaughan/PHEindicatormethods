@@ -107,6 +107,11 @@ test_that("smrs and CIs calculate correctly",{
                data.frame(confidence = rep("95%, 99.8%",3), stringsAsFactors=FALSE),
                check.attributes=FALSE, check.names=FALSE,info="test two CIS metadata")
 
+  expect_equal(data.frame(select(phe_smr(select(test_ISR_ownref,-refcount,-refpop), count, pop,
+                                         x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, confidence = NA),1:6,8:9)),
+               data.frame(select(slice(test_ISR_results_no_CI,7:9),1:3,5:9)),
+               check.attributes=FALSE, check.names=FALSE,info="test no CIs")
+
 })
 
 
@@ -126,13 +131,13 @@ test_that("smrs - errors are generated when invalid arguments are used",{
                "denominators must all be greater than or equal to zero",info="error denominator < 0")
 
   expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, confidence = 0.74),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence < 0.9")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence < 0.9")
 
   expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, confidence = 3),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence between 1 and 90")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence between 1 and 90")
 
   expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, confidence = 1000),
-               "confidence level must be between 90 and 100 or between 0.9 and 1",info="error confidence >100")
+               "confidence level, if specified, must be between 90 and 100 or between 0.9 and 1.",info="error confidence >100")
 
   expect_error(phe_smr(test_multiarea, count, pop, x_ref = test_ISR_refdata$refcount, n_ref = test_ISR_refdata$refpop, type="combined"),
                "type must be one of value, lower, upper, standard or full",info="error invalid type")
